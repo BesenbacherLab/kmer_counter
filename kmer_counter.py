@@ -56,7 +56,6 @@ class AllAutoReader():
 
 def get_indel_contexts(chrom, pos, radius, tb):
     context = tb.sequence(chrom, pos-radius, pos+radius)
-    #context = genome[chrom.encode('utf-8')][pos-args.radius:pos+args.radius].upper()
     if 'N' in context or len(context) < radius*2:
         raise Exception('bad_context')
     context2 = reverse_complement(context)
@@ -73,50 +72,25 @@ def get_possible_indel_pos(chrom, pos, ref, alt, tb, buffer=50):
     if len(ref) > len(alt): # This variant is a deletion
         assert(len(alt)==1)
         assert(ref[0] == alt)
-        #print(tb.sequence(chrom, pos-1, pos+len(ref)-1))
         long_seq = tb.sequence(chrom, pos, pos+buffer) # Reference sequence
-        #print(long_seq[:len(ref)-1], ref[1:])
         assert(long_seq[:len(ref)-1] == ref[1:])
-        #long_seq = genome[pos:pos+buffer] # Reference sequence
-        #short_seq = long_seq[:1] + long_seq[len(ref):] # Alternative sequence
         short_seq = long_seq[len(ref)-1:] # Alternative sequence
         i= 0
     elif len(ref) < len(alt): # This variant is an Insertion
         assert(len(ref)==1)
         assert(ref == alt[0])
-        #alternative = genome[pos-1:pos] + alt + genome[pos+1:pos+buffer]
-        short_seq = tb.sequence(chrom, pos, pos+buffer)
-        #short_seq = genome[pos:pos+buffer] # Reference seqeunce
+        short_seq = tb.sequence(chrom, pos, pos+buffer) # Reference seqeunce
         long_seq =  alt[1:] + short_seq # Alternative seqeunce
-        #long_seq = alt + genome[pos+1:pos+buffer] # Alternative seqeunce
         i = 0 
     else:
         assert(False)
     L = []
     len_diff = len(long_seq) - len(short_seq)
-    # print(len_diff, len(alt))
-    # print(i)
-    # print("short long")
-    # print(short_seq)
-    # print(long_seq)
-    # print("short start long start")
-    # print(short_seq[:i])
-    # print(long_seq[:i])
-    # if not (short_seq[:i] == long_seq[:i]):
-    #     print('PROBLEM start')
-    #     return [(i+pos, long_seq[i:i+len_diff])]
-    # print("short end long end")
-    # print(short_seq[i:])
-    # print(long_seq[i+len_diff:])
-    # if not (short_seq[i:] == long_seq[i+len_diff:]):
-    #     print('PROBLEM end')
-    #     return [(i+pos, long_seq[i:i+len_diff])]
     assert(short_seq[:i] == long_seq[:i] and short_seq[i:] == long_seq[i+len_diff:])
     while True:     
         #print("prefixes = ", short_seq[:i], long_seq[:i])
         #print("suffix = ", short_seq[i:], long_seq[i+len_diff:])
         if short_seq[:i] == long_seq[:i] and short_seq[i:] == long_seq[i+len_diff:]:
-            #L.append((i+pos, long_seq[i:i+len_diff], genome[i+pos-2:i+pos+2]))            
             L.append((i+pos, long_seq[i:i+len_diff]))            
             i+=1
             if i + len_diff >= buffer:
@@ -186,7 +160,7 @@ def count_indels(args):
                 alt = alt[:-(len(ref)-1)]
                 ref = ref[:1]
         if alt[0] != ref[0]:
-            print("Warning. Not left-aligned variant ignored:", line.strip())
+            print("Warning. Not left-aligned variant ignored:", line.strip(), file=sys.stderr)
             continue
         L = get_possible_indel_pos(chrom, pos, ref, alt, tb)
         if args.sample:
