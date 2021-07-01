@@ -87,7 +87,7 @@ def main(args = None):
     bg_parser.add_argument('--before_after', type=int, nargs=2, metavar=('X','Y'),
         help='count the k-mer from X bases before a position to Y bases after a position. '
         'For each position in the inputfile.')
-    bg_parser.add_argument('--reverse_complement_method', type=str, choices=['none', 'middle', 'lexicographic'],
+    bg_parser.add_argument('--reverse_complement_method', type=str, choices=['none', 'middle', 'lexicographic', 'both'],
         help='"none" means that alle k-mers are counted unchanged. "middle" means that the reverse complement of a k-mer is counted if the middle position is not a "A" or "C". "lexicographic" means that the reverse_complement is counted if it has a smaller lexicographic order. Default is "middle" if --radius option is used and "lexicographic" if --before_after is used.')
 
     args = parser.parse_args(args)
@@ -107,7 +107,7 @@ def main(args = None):
     tb = py2bit.open(args.ref_genome)
 
     if args.command == 'indel':
-        kmer_count = count_indels(args)
+        kmer_count = count_indels(args, tb)
     elif args.command == 'snv':
         dreader = PosReader(args.mutations, tb)
         kmer_count = count_non_indels(tb, dreader, args.radius, args.radius, 'middle')     
@@ -120,12 +120,13 @@ def main(args = None):
             after = args.radius
             if args.reverse_complement_method is None:
                 args.reverse_complement_method = "middle"
-            else:
-                before, after = args.before_after
-                assert before>=0
-                assert after>=0
-                if args.reverse_complement_method is None:
-                    args.reverse_complement_method = "none"
+        else:
+            before, after = args.before_after
+            assert before>=0
+            assert after>=0
+            if args.reverse_complement_method is None:
+                args.reverse_complement_method = "none"        
+
         if not args.bed is None:
             if args.all_autosomes:
                 raise WrongNumberOfInputException
@@ -141,7 +142,7 @@ def main(args = None):
             dreader = AllAutoReader(tb)
         else:
             raise WrongNumberOfInputException
-        kmer_count = count_non_indels(tb,dreader, before, after, args.reverse_complement_method)
+        kmer_count = count_non_indels(tb, dreader, before, after, args.reverse_complement_method)
     
     for x in kmer_count:
         print(x, kmer_count[x])

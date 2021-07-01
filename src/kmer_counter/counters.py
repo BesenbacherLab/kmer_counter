@@ -3,7 +3,7 @@ import sys
 from collections import defaultdict
 from kmer_counter.utils import *
 
-def count_indels(args):
+def count_indels(args, tb):
     if args.sample:
         kmer_count = defaultdict(int)
     else:        
