@@ -83,8 +83,9 @@ def count_indels(args, tb):
 
 def count_non_indels(tb, dreader, before, after, reverse_complement_method):
     kmer_count = defaultdict(int)
+    chroms = tb.chroms()
     for chrom, pos, scale in dreader:
-        if pos<before or pos > (tb.chroms()[chrom]-after):
+        if pos<before or pos > (chroms[chrom]-after):
             continue
         try:
             context = tb.sequence(chrom, pos-before, pos+after+1)
