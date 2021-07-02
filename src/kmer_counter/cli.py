@@ -13,8 +13,8 @@
 
 import gzip
 import sys
-#from typing import List, Optional
 import argparse
+import importlib.metadata
 import py2bit
 from kmer_counter.readers import *
 from kmer_counter.counters import count_indels, count_non_indels
@@ -42,6 +42,7 @@ def main(args = None):
     subparsers = parser.add_subparsers(dest='command', help='command. Must choose what kind of file you want to count.')
     #parser.add_argument('-t', '--test', action='store_true')
     #parser.add_argument('-v', '--verbose', action='store_true')
+    parser.add_argument('-V', '--version', action='store_true')
 
 
     snv_parser = subparsers.add_parser('snv', description='Count k-mers at SNVs.')
@@ -91,6 +92,10 @@ def main(args = None):
         help='"none" means that alle k-mers are counted unchanged. "middle" means that the reverse complement of a k-mer is counted if the middle position is not a "A" or "C". "lexicographic" means that the reverse_complement is counted if it has a smaller lexicographic order. Default is "middle" if --radius option is used and "lexicographic" if --before_after is used.')
 
     args = parser.parse_args(args)
+
+    if args.version:
+        print("installed version:", importlib.metadata.version('kmer_counter'))
+        return 0
 
     if args.command not in ['snv', 'indel', 'background']:
         print('Error: must specify command.')
