@@ -10,22 +10,12 @@ release_args = version
 test_args = match
 
 BASIC_DUTIES = \
-	changelog \
 	clean \
 	coverage \
-	docs \
-	docs-deploy \
-	docs-regen \
-	docs-serve \
 	format \
 	release
 
 QUALITY_DUTIES = \
-	check \
-	check-code-quality \
-	check-dependencies \
-	check-docs \
-	check-types \
 	test
 
 .PHONY: help
