@@ -3,16 +3,29 @@ import sys
 from collections import defaultdict
 from kmer_counter.utils import *
 
-def count_indels(args, tb):
-    if args.sample:
+def count_indels(mutations, tb, break_point_type, radius, sample_breakpoints=True):
+    """ Count k-mers at indels breakpoints
+
+    Args:
+        mutations: file with mutations
+        tb: TwoBit file.
+        break_point_type (str): type of breakpoints that should be counted
+        radius (int): number of upstream and downstream bases to consider.
+        sample_breakpoints (bool, optional): Should breakpoints be sampled? Defaults to True.
+    Returns:
+        dict: kmers -> counts
+            if sample then counts will be ints
+            else counts will be floats.
+    """    
+    if sample_breakpoints:
         kmer_count = defaultdict(int)
     else:        
         kmer_count = defaultdict(float)
 
-    for line in args.mutations:
+    for line in mutations:
         chrom, pos, ref, alt = line.split()[:4]
-        if args.verbose:
-            print(chrom, pos, ref, alt)#, file=sys.stderr)
+        #if args.verbose:
+        #    print(chrom, pos, ref, alt)#, file=sys.stderr)
         pos = int(pos)
         if len(ref) > len(alt):
             if len(alt) != 1:
@@ -34,16 +47,16 @@ def count_indels(args, tb):
             print("Warning. Not left-aligned variant ignored:", line.strip(), file=sys.stderr)
             continue
         L = get_possible_indel_pos(chrom, pos, ref, alt, tb)
-        if args.sample:
+        if sample_breakpoints:
             L = [random.choice(L)]
         for rpos, ralt in L:
             if len(ref) < len(alt): # This variant is an Insertion
                 try:
-                    c1, c2 = get_indel_contexts(chrom, rpos, args.radius, tb)
+                    c1, c2 = get_indel_contexts(chrom, rpos, radius, tb)
                 except:
                     continue
-                if args.type in ['ins', 'all']:
-                    if args.sample:
+                if break_point_type in ['ins', 'all']:
+                    if sample_breakpoints:
                         kmer_count[c1] += 1
                         kmer_count[c2] += 1
                     else:
@@ -51,30 +64,30 @@ def count_indels(args, tb):
                         kmer_count[c2] += 1.0/(len(L)*2)
             elif len(ref) > len(alt): # This variant is a Deletion
                 try:
-                    c1, c2 = get_indel_contexts(chrom, rpos, args.radius, tb)
+                    c1, c2 = get_indel_contexts(chrom, rpos, radius, tb)
                 except:
                     continue
-                if args.type in ['del_start', 'all', 'del']:
-                    if args.sample:
+                if break_point_type in ['del_start', 'all', 'del']:
+                    if sample_breakpoints:
                         kmer_count[c1] += 1
                     else:
                         kmer_count[c1] += 1.0/(len(L)*4)
-                if args.type in ['del_end', 'all', 'del']:
-                    if args.sample:
+                if break_point_type in ['del_end', 'all', 'del']:
+                    if sample_breakpoints:
                         kmer_count[c2] += 1
                     else:
                         kmer_count[c2] += 1.0/(len(L)*4)
                 try:
-                    c1, c2 = get_indel_contexts(chrom, rpos+(len(ref)-len(alt)), args.radius, tb)
+                    c1, c2 = get_indel_contexts(chrom, rpos+(len(ref)-len(alt)), radius, tb)
                 except:
                     continue
-                if args.type in ['del_start', 'all', 'del']:
-                    if args.sample:
+                if break_point_type in ['del_start', 'all', 'del']:
+                    if sample_breakpoints:
                         kmer_count[c2] += 1
                     else:
                         kmer_count[c2] += 1.0/(len(L)*4)
-                if args.type in ['del_end', 'all', 'del']:
-                    if args.sample:
+                if break_point_type in ['del_end', 'all', 'del']:
+                    if sample_breakpoints:
                         kmer_count[c1] += 1
                     else:
                         kmer_count[c1] += 1.0/(len(L)*4)

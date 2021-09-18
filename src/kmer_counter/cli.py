@@ -14,7 +14,7 @@
 import gzip
 import sys
 import argparse
-import importlib.metadata
+#import importlib.metadata
 import py2bit
 from kmer_counter.readers import *
 from kmer_counter.counters import count_indels, count_non_indels
@@ -94,7 +94,7 @@ def main(args = None):
     args = parser.parse_args(args)
 
     if args.version:
-        print("installed version:", importlib.metadata.version('kmer_counter'))
+        #print("installed version:", importlib.metadata.version('kmer_counter'))
         return 0
 
     if args.command not in ['snv', 'indel', 'background']:
@@ -112,7 +112,7 @@ def main(args = None):
     tb = py2bit.open(args.ref_genome)
 
     if args.command == 'indel':
-        kmer_count = count_indels(args, tb)
+        kmer_count = count_indels(args.mutations, tb, args.type, args.radius, args.sample)
     elif args.command == 'snv':
         dreader = PosReader(args.mutations, tb)
         kmer_count = count_non_indels(tb, dreader, args.radius, args.radius, 'middle')     
