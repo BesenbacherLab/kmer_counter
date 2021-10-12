@@ -91,7 +91,6 @@ def release(ctx, version):
         ctx.run("git push --tags", title="Pushing tags", pty=False)
         ctx.run("poetry build", title="Building dist/wheel", pty=PTY)
         ctx.run("poetry publish", title="Publishing version", pty=PTY)
-        docs_deploy.run()  # type: ignore
 
 
 @duty(silent=True)
