@@ -14,7 +14,7 @@ def count_indels(mutations, tb, break_point_type, radius, sample_breakpoints=Tru
         sample_breakpoints (bool, optional): Should breakpoints be sampled? Defaults to True.
     Returns:
         dict: kmers -> counts
-            if sample then counts will be ints
+            if sample_breakpoints==True then counts will be ints
             else counts will be floats.
     """    
     if sample_breakpoints:

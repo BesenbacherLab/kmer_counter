@@ -6,6 +6,8 @@ class PosReader:
         self.tb = tb
     def __iter__(self):
         for line in self.f:
+            if line.startswith('#'): 
+                continue
             L = line.split()
             chrom, pos, ref, alt = L[:4]
             if not (len(ref) == 1 and len(alt) == 1):

@@ -7,7 +7,7 @@ name = "kmer_counter"
 version = "0.2.1"
 description = "Count kmers in regions or at SNVs or at indel breakpoints."
 authors = ["Søren Besenbacher <besenbacher@clin.au.dk>"]
-license = "GNU Lesser General Public License v3.0"
+license = "MIT License"
 readme = "README.md"
 repository = "https://github.com/besenbacher/kmer_counter"
 keywords = []
@@ -17,6 +17,7 @@ packages = [ { include = "kmer_counter", from = "src" } ]
 python = "^3.6"
 py2bit = "^0.3.0"
 argparse = "^1.4.0"
+#importlib-metadata = {version = "1.7.0", python = "<3.8"}
 
 [tool.poetry.dev-dependencies]
 # formatting, quality, tests

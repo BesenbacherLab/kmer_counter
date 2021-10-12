@@ -14,10 +14,11 @@
 import gzip
 import sys
 import argparse
-#import importlib.metadata
 import py2bit
 from kmer_counter.readers import *
 from kmer_counter.counters import count_indels, count_non_indels
+
+
 
 WrongNumberOfInputException = \
     Exception('Exactly one of the input options --bed, --pos or --all_autosomes should be used')
@@ -45,13 +46,17 @@ def main(args = None):
     parser.add_argument('-V', '--version', action='store_true')
 
 
-    snv_parser = subparsers.add_parser('snv', description='Count k-mers at SNVs.')
+    snv_parser = subparsers.add_parser('snv', 
+        description='''Count k-mers at SNVs.
+        The k-mer will be centered around the mutation base and if the reference base is G or T then the reverse_complement of the reference k-mer will be counted instead.
+        '''
+    )
     snv_parser.add_argument('ref_genome', help='Reference genome in 2bit format', type=str)
     snv_parser.add_argument('mutations', 
         type=argparse.FileType('r'), 
         help='A vcf-like file with SNVs. First four columns should be: Chrom, pos, ref, alt. '
         'Other columns are ignored. Non-SNV variants are ignored.')
-    snv_parser.add_argument('-r', '--radius', type=int, metavar='R',
+    snv_parser.add_argument('-r', '--radius', type=int, metavar='R', default=1,
         help='Count the k-mer from R bases before a position to R bases '
              'after a position. For each position in the inputfile.')
 
@@ -94,7 +99,12 @@ def main(args = None):
     args = parser.parse_args(args)
 
     if args.version:
-        #print("installed version:", importlib.metadata.version('kmer_counter'))
+        try:
+            from importlib import metadata
+        except ImportError: # for Python<3.8
+            import importlib_metadata as metadata
+        print("installed version:", metadata.version('kmer_counter'))
+        print()
         return 0
 
     if args.command not in ['snv', 'indel', 'background']:
