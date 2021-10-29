@@ -1,14 +1,3 @@
-# Why does this file exist, and why not put this in `__main__`?
-#
-# You might be tempted to import things from `__main__` later,
-# but that will cause problems: the code will get executed twice:
-#
-# - When you run `python -m kmer_counter` python will execute
-#   `__main__.py` as a script. That means there won't be any
-#   `kmer_counter.__main__` in `sys.modules`.
-# - When you import `__main__` it will get executed again (as a module) because
-#   there's no `kmer_counter.__main__` in `sys.modules`.
-
 """Module that contains the command line application."""
 
 import gzip
@@ -17,11 +6,6 @@ import argparse
 import py2bit
 from kmer_counter.readers import *
 from kmer_counter.counters import count_indels, count_non_indels
-
-
-
-WrongNumberOfInputException = \
-    Exception('Exactly one of the input options --bed, --pos or --all_autosomes should be used')
 
 def main(args = None):
     """
@@ -38,13 +22,10 @@ def main(args = None):
     parser = argparse.ArgumentParser(
         prog='kmer_counter',
         description='''
-        Count k-mers at SNVs, indel breakpoints or in a background file
+        Count k-mers at SNVs, indel breakpoints or in genomic regions
     ''')
     subparsers = parser.add_subparsers(dest='command', help='command. Must choose what kind of file you want to count.')
-    #parser.add_argument('-t', '--test', action='store_true')
-    #parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('-V', '--version', action='store_true')
-
 
     snv_parser = subparsers.add_parser('snv', 
         description='''Count k-mers at SNVs.
@@ -72,10 +53,10 @@ def main(args = None):
         help='How many base pairs before indel_start_point or after indel_end_point should be included '
         'as context annotation.')
     indel_parser.add_argument('--sample', action="store_true", help='Randomly choose one of the possible positions instead of counting the expected (non integer) count for each possible position of an ambigously aligned indel.')
-    indel_parser.add_argument('-v', '--verbose', action='store_true')
+    #indel_parser.add_argument('-v', '--verbose', action='store_true')
 
 
-    bg_parser = subparsers.add_parser('background', description='Count kmers in a genome')
+    bg_parser = subparsers.add_parser('background', description='Count kmers in (regions of) a genome')
     bg_parser.add_argument('ref_genome',  type=str,
         help='Reference genome in 2bit format',)
     bg_parser.add_argument('--bed', type=str,
@@ -99,11 +80,8 @@ def main(args = None):
     args = parser.parse_args(args)
 
     if args.version:
-        try:
-            from importlib import metadata
-        except ImportError: # for Python<3.8
-            import importlib_metadata as metadata
-        print("installed version:", metadata.version('kmer_counter'))
+        from kmer_counter import __version__
+        print("version:", __version__)
         print()
         return 0
 
@@ -144,7 +122,7 @@ def main(args = None):
 
         if not args.bed is None:
             if args.all_autosomes:
-                raise WrongNumberOfInputException
+                raise Exception('Either --bed or--all_autosomes option should be used. Not both.')
             if args.bed.endswith('.bed.gz'):
                 dreader = BedReader(gzip.open(args.bed, 'rt'))
             elif args.bed.endswith('.bed'):
@@ -156,7 +134,7 @@ def main(args = None):
         elif args.all_autosomes:
             dreader = AllAutoReader(tb)
         else:
-            raise WrongNumberOfInputException
+            raise Exception('Either --bed or--all_autosomes option should be used')
         kmer_count = count_non_indels(tb, dreader, before, after, args.reverse_complement_method)
     
     for x in kmer_count:
