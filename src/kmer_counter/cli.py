@@ -45,7 +45,7 @@ def main(args = None):
     indel_parser.add_argument('ref_genome', help='Reference genome in 2bit format', type=str)
     indel_parser.add_argument('mutations',
         type=argparse.FileType('r'), 
-        help='A sorted vcf-like file with indels. First four columns should be: Chrom, pos, ref, alt.'
+        help='A sorted vcf-like file with indels. First four columns should be: Chrom, pos, ref, alt. '
         'Other columns are ignored. Non-indel variants are ignored. Indels should be left-aligned.')
     indel_parser.add_argument('type', choices=['ins', 'del_start', 'del_end', 'all', 'del'],
         help='What type of indel breakpoint do you want to count?')
