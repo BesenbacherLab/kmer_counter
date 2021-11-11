@@ -7,4 +7,4 @@ from kmer_counter.utils import *
 
 __all__: [reverse_complement, get_indel_contexts, get_possible_indel_pos]
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
