@@ -14,7 +14,8 @@ class PosReader:
                 print("Warning. Non-SNV variant ignored:", line.strip(), file=sys.stderr)
                 continue
             if ref != self.tb.sequence(chrom, int(pos)-1, int(pos)):
-                print("Warning. Reference allele dosn't match 2bit file:", line.strip(), file=sys.stderr)
+                print(int(pos))
+                print("Warning. Reference allele dosn't match 2bit file:", line.strip(), "ref:", self.tb.sequence(chrom, int(pos)-1, int(pos)), file=sys.stderr)
                 continue
             yield chrom, int(pos)-1, 1
 
