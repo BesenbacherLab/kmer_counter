@@ -1,3 +1,4 @@
+import sys
 complement = str.maketrans('ATCGN', 'TAGCN')
 
 def reverse_complement(s):
@@ -59,10 +60,21 @@ def get_possible_indel_pos(chrom, pos, ref, alt, tb, buffer=50):
     if len(ref) > len(alt): # This variant is a deletion
         assert(len(alt)==1)
         assert(ref[0] == alt)
+        #print(chrom, pos, ref, alt)        
         long_seq = tb.sequence(chrom, pos, pos+buffer) # Reference sequence
-        assert(long_seq[:len(ref)-1] == ref[1:])
+        #print(long_seq)
+        #print(long_seq[:len(ref)-1],ref[1:])
+        #print(tb.sequence(chrom, pos-1, pos))
+        if(long_seq[:len(ref)-1] != ref[1:]):
+            print(f"WARNING. Reference does not match: {chrom} {pos} {ref} {alt}", file=sys.stderr)
+            print(f"ref according to mutations file: {ref}", file=sys.stderr)
+            oref = tb.sequence(chrom, pos-1, pos+len(ref)-1)
+            print(f"ref according to 2bit file: {oref}", file=sys.stderr)
+            print(f"Skipping variant.", file=sys.stderr)
+            return None
+        #assert(long_seq[:len(ref)-1] == ref[1:])
         short_seq = long_seq[len(ref)-1:] # Alternative sequence
-        i= 0
+        i = 0
     elif len(ref) < len(alt): # This variant is an Insertion
         assert(len(ref)==1)
         assert(ref == alt[0])

@@ -47,6 +47,8 @@ def count_indels(mutations, tb, break_point_type, radius, sample_breakpoints=Tru
             print("Warning. Not left-aligned variant ignored:", line.strip(), file=sys.stderr)
             continue
         L = get_possible_indel_pos(chrom, pos, ref, alt, tb)
+        if L is None:
+            continue
         if sample_breakpoints:
             L = [random.choice(L)]
         for rpos, ralt in L:
