@@ -6,6 +6,7 @@ import argparse
 import py2bit
 from kmer_counter.readers import *
 from kmer_counter.counters import count_indels, count_non_indels
+from kmer_counter.pick_indel import pick_random_indels
 
 def main(args = None):
     """
@@ -56,6 +57,17 @@ def main(args = None):
     #indel_parser.add_argument('-v', '--verbose', action='store_true')
 
 
+    pick_parser = subparsers.add_parser('pick_random_indel', description='Pick a random indel positionout of the possible and print.')
+    pick_parser.add_argument('ref_genome', help='Reference genome in 2bit format', type=str)
+    pick_parser.add_argument('mutations',
+        type=argparse.FileType('r'), 
+        help='A sorted vcf-like file with indels. First four columns should be: Chrom, pos, ref, alt. '
+        'Other columns are ignored. Non-indel variants are ignored. Indels should be left-aligned.')
+    pick_parser.add_argument('-r', '--radius', default=1, type=int, 
+        help='How many base pairs before indel_start_point or after indel_end_point should be included '
+        'as context annotation.')
+    
+
     bg_parser = subparsers.add_parser('background', description='Count kmers in (regions of) a genome')
     bg_parser.add_argument('ref_genome',  type=str,
         help='Reference genome in 2bit format',)
@@ -85,7 +97,7 @@ def main(args = None):
         print()
         return 0
 
-    if args.command not in ['snv', 'indel', 'background']:
+    if args.command not in ['snv', 'indel', 'background', 'pick_random_indel']:
         print('Error: must specify command.')
         print()
         parser.print_help()
@@ -101,6 +113,9 @@ def main(args = None):
 
     if args.command == 'indel':
         kmer_count = count_indels(args.mutations, tb, args.type, args.radius, args.sample)
+    elif args.command == 'pick_random_indel':
+        pick_random_indels(args.mutations, tb, args.radius)
+        return 0
     elif args.command == 'snv':
         dreader = PosReader(args.mutations, tb)
         kmer_count = count_non_indels(tb, dreader, args.radius, args.radius, 'middle')     
