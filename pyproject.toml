@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "kmer_counter"
-version = "0.2.1"
+version = "0.2.2"
 description = "Count kmers in regions or at SNVs or at indel breakpoints."
 authors = ["Søren Besenbacher <besenbacher@clin.au.dk>"]
 license = "MIT License"
