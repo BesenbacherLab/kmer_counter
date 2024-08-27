@@ -40,7 +40,18 @@ def pick_random_indels(mutations, tb, radius):
         L = get_possible_indel_pos(chrom, pos, ref, alt, tb)
         if L is None:
             continue
+        #print(len(L))
+        #print(chrom, pos, ref, alt)
         
+        # for rpos, ralt in L:
+        #    s = get_indel_contexts(chrom, rpos, radius, tb)[0]
+        #    new_ref = tb.sequence(chrom, rpos-1, rpos+len(ref)-1)
+        #    if len(ref)<len(alt):
+        #        new_alt = new_ref + ralt
+        #    else:
+        #        new_alt = new_ref[0]
+        #    print(rpos, new_ref, new_alt, '----', s[:4],'|',s[4:])
+
         rpos, ralt = random.choice(L)
         try:
             #new_ref =  tb.sequence(chrom, rpos, rpos+len(ref))
@@ -56,7 +67,12 @@ def pick_random_indels(mutations, tb, radius):
             new_alt = new_ref[0]
         #assert(len(alt) == len(ralt)+1)
         #print(len(ref), len(alt), len(ralt))
-        c = random.choice([c1,c2])
-        print(chrom, rpos, new_ref, new_alt, c)
+        #c = random.choice([c1,c2])
+        #For deletion er c1 del_start og c2 del_end
+        #Jeg vaelger altid c1 pt.
+        # Kunne vaelge tilfaeldigt for insertions.
+        # Eller ogsa tage rev_comp af hojre breakpoint for deletions. 
+        #print(chrom, pos, ref, alt, c1, c2)
+        print(chrom, rpos, new_ref, new_alt, c1)
 
     return 0
